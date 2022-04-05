@@ -2,7 +2,7 @@
 // Created by atimin on 19.04.21.
 //
 
-#include "sf/sf_compressor.h"
+#include <sf_compressor/sf_compressor.h>
 
 #include <array>
 #include <cmath>
