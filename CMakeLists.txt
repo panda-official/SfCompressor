@@ -81,5 +81,5 @@ install(FILES "${PROJECT_BINARY_DIR}/${SFC_TARGET_NAME}-config.cmake"
         ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 # Install headers
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/metric TYPE INCLUDE
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/sf_compressor TYPE INCLUDE
         PATTERN "*.md" EXCLUDE)
