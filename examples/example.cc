@@ -7,8 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "sf/sf_compressor.h"
-#include "sf/utils.h"
+#include "sf_compressor/sf_compressor.h"
+#include "sf_compressor/utils.h"
 
 using drift::sf::CreateRandomMatrix;
 using drift::sf::SfCompressor;
