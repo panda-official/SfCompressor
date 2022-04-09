@@ -1,5 +1,2 @@
-set(SOURCE_FILES main.cc
-        sf/sf_benchmarks.cc)
-
-add_executable(sf_compressor_benchmarks ${SOURCE_FILES})
-target_link_libraries(sf_compressor_benchmarks PRIVATE Catch2::Catch2 sf_compressor)
+add_executable(benchmarks sf_benchmarks.cc)
+target_link_libraries(benchmarks PRIVATE Catch2::Catch2WithMain ${SFC_TARGET_NAME})

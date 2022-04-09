@@ -1,10 +1,12 @@
 // Copyright 2021 PANDA GmbH
 #define CATCH_CONFIG_ENABLE_BENCHMARKING
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_all.hpp>
+#include <catch2/benchmark/catch_benchmark_all.hpp>
 
-#include "sf/sf_compressor.h"
-#include "sf/utils.h"
+#include "sf_compressor/sf_compressor.h"
+#include "sf_compressor/utils.h"
 
 using drift::sf::CreateRandomMatrix;
 using drift::sf::SfCompressor;
