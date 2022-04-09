@@ -1,6 +1,4 @@
-//
-// Created by atimin on 19.04.21.
-//
+// Copyright 2021 PANDA Gmbh
 
 #include <sf_compressor/sf_compressor.h>
 
@@ -12,7 +10,7 @@ namespace drift::sf {
 
 const int MAXCODELEN = 32;
 /**
- * Original sturct. Don't change
+ * Original struct. Don't change
  */
 typedef struct {
   uint8_t Exp;       // Exponent of the bfloat 16 (real Exp=Exp-127)
@@ -180,21 +178,22 @@ class SfCompressor::Impl {
       LastExpTmp = M_Value16.Exp;
     }
     // Ergänze Nullen am Ende (auch wenn n.v., damit Dateiende definiert...)
-    //	JumpSize=255-LastExpTmp;
-    //	ExpJump[TimelineLen]=JumpSize+((LastExpTmp<JumpSize)?LastExpTmp:JumpSize);
-    //	ZeroCount[TimelineLen]=(M_NonZeroSize>0)?M_Row*M_Col-(M_Index[M_NonZeroSize-1]+1):M_Row*M_Col;
-    //	Pool[0].DSQty[findPoolNr(0,ExpJump[TimelineLen])]++;
-    //	Pool[1].DSQty[findPoolNr(1,ZeroCount[TimelineLen])]++;
-    //	TimelineLen++;
+    // JumpSize=255-LastExpTmp;
+    // ExpJump[TimelineLen]=JumpSize+((LastExpTmp<JumpSize)?LastExpTmp:JumpSize);
+    // ZeroCount[TimelineLen]=(M_NonZeroSize>0)?M_Row*M_Col-(M_Index[M_NonZeroSize-1]+1):M_Row*M_Col;
+    // Pool[0].DSQty[findPoolNr(0,ExpJump[TimelineLen])]++;
+    // Pool[1].DSQty[findPoolNr(1,ZeroCount[TimelineLen])]++;
+    // TimelineLen++;
     //###################################################################
     // Look for last used Container & calculate Summs of Datasets for both Codes
     for (PNr = 0; PNr < 2; PNr++) {
       Pool[PNr].PoolsUsed = 0;
-      for (t = Pool[PNr].PoolsCount; t > 0; t--)
+      for (t = Pool[PNr].PoolsCount; t > 0; t--) {
         if (Pool[PNr].DSQty[t - 1] > 0) {
           Pool[PNr].PoolsUsed = t;
           break;
         }
+      }
       Pool[PNr].DSQtyUp[0] = Pool[PNr].DSQty[0];
       for (t = 1; t < Pool[PNr].PoolsUsed; t++) {
         Pool[PNr].DSQtyUp[t] = Pool[PNr].DSQtyUp[t - 1] + Pool[PNr].DSQty[t];
@@ -213,13 +212,14 @@ class SfCompressor::Impl {
       for (uint32_t TestCodeLen = 0; TestCodeLen <= MAXCODELEN; TestCodeLen++) {
         NextPoolsReady = PoolsReady;
         for (t = PoolsReady; t < Pool[PNr].PoolsUsed; t++) {
-          Sollanteil = double(Pool[PNr].Last[t] + 1 - CodesReady) *
-                       (Pow2Dbl129[32 - TestCodeLen] - 1.0) / FreeCodes;
+          Sollanteil = static_cast<double>(Pool[PNr].Last[t] + 1 - CodesReady) *
+              (Pow2Dbl129[32 - TestCodeLen] - 1.0) / FreeCodes;
           if (Sollanteil > 1) {
             break;
           }  // Mit dieser CodeLen nicht mehr möglich
-          Istanteil = double(Pool[PNr].DSQtyUp[t] - CountUpsReady) /
-                      double(TimelineLen);
+          Istanteil =
+              static_cast<double>(Pool[PNr].DSQtyUp[t] - CountUpsReady) /
+                  static_cast<double>(TimelineLen);
           if (Istanteil >= Sollanteil) {
             NextPoolsReady = t + 1;
           }
@@ -233,7 +233,7 @@ class SfCompressor::Impl {
           CodesReady = Pool[PNr].Last[NextPoolsReady - 1] + 1;
           FreeCodes =
               Pow2Dbl129[32] -
-              (Pool[PNr].Last[Pool[PNr].PoolsUsed - 1] + 1 - CodesReady);
+                  (Pool[PNr].Last[Pool[PNr].PoolsUsed - 1] + 1 - CodesReady);
           CountUpsReady = Pool[PNr].DSQtyUp[NextPoolsReady - 1];
           PoolsReady = NextPoolsReady;
         }
@@ -246,16 +246,19 @@ class SfCompressor::Impl {
       FreeCodes = 1;  // Setze Bereich auf 100% frei
       for (t = 0; t < Pool[PNr].PoolsUsed; t++) {
         FreeCodes -=
-            double(Pool[PNr].CodeQty[t]) / Pow2Dbl129[Pool[PNr].CodeLen[t]];
+            static_cast<double>(Pool[PNr].CodeQty[t])
+                / Pow2Dbl129[Pool[PNr].CodeLen[t]];
       }
       while (FreeCodes > 0 && Pool[PNr].PoolsUsed > 0) {
         for (t = 0; t < Pool[PNr].PoolsUsed; t++) {
           // cout<<t<<": "<<1*Pool[PNr].CodeLen[t]<<"=>";
           // Pruefen, ob Codeanteil vergroessert (2x) werden kann
           if (FreeCodes >=
-              double(Pool[PNr].CodeQty[t]) / Pow2Dbl129[Pool[PNr].CodeLen[t]]) {
+              static_cast<double>(Pool[PNr].CodeQty[t])
+                  / Pow2Dbl129[Pool[PNr].CodeLen[t]]) {
             FreeCodes -=
-                double(Pool[PNr].CodeQty[t]) / Pow2Dbl129[Pool[PNr].CodeLen[t]];
+                static_cast<double>(Pool[PNr].CodeQty[t])
+                    / Pow2Dbl129[Pool[PNr].CodeLen[t]];
             Pool[PNr].CodeLen[t]--;
             // cout<<1*Pool[PNr].CodeLen[t];
             if (FreeCodes == 0) {
@@ -283,12 +286,12 @@ class SfCompressor::Impl {
             // Nächsten Code letzte CodeLen
             Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] =
                 (Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 2] +
-                 Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
+                    Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
             // Schieben auf neue CodeLen
             Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] =
                 (Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1]
-                 << (Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 1] -
-                     Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 2]));
+                    << (Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 1] -
+                        Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 2]));
             // Neuen Startwert abziehen
             Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] -=
                 (Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
@@ -303,12 +306,12 @@ class SfCompressor::Impl {
         // Nächsten Code letzte CodeLen
         Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] =
             (Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 2] +
-             Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
+                Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
         // Schieben auf neue CodeLen
         Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] =
             (Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1]
-             << (Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 1] -
-                 Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 2]));
+                << (Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 1] -
+                    Pool[PZiel].CodeLen[Pool[PZiel].PoolsCount - 2]));
         // Neuen Startwert abziehen
         Pool[PZiel].CodeOffset[Pool[PZiel].PoolsCount - 1] -=
             (Pool[PZiel].Last[Pool[PZiel].PoolsCount - 2] + 1);
@@ -319,7 +322,8 @@ class SfCompressor::Impl {
     }
     for (PNr = 0; PNr < 6; PNr++) ShowPoolSearch(PNr, true);
     //###################################################################
-    if (double(M_Row) * double(M_Col) > Pow2Dbl129[31]) {
+    if (static_cast<double>(M_Row) * static_cast<double>(M_Col)
+        > Pow2Dbl129[31]) {
       std::cerr << "Matrix zu gross, keine Ausgabe";
       return 0;
     }
@@ -332,7 +336,7 @@ class SfCompressor::Impl {
     uint8_t RowColCodeLen;
     uint32_t FragCodes;
     bool ZerosAppear;
-    //	typeOutAdder AusgabeCode;
+    // typeOutAdder AusgabeCode;
 
     OutBitsFree = 0;
     OutBytes = 0;
@@ -383,7 +387,7 @@ class SfCompressor::Impl {
         ShowBitstream();
         // Keine Nullen, wenn Matrix voll besetzt
         ZerosAppear = (M_NonZeroSize < M_Row * M_Col + 1);
-        if (ZerosAppear == true) {
+        if (ZerosAppear) {
           // Kann Werte annehmen: 0..31, Option Base 0
           Bitstream(SevenOfNine(Pool[3].CodeLen[0], 32));
           //          cout << ",Zeros1stCodeLen=" << 1 * Pool[3].CodeLen[0] <<
@@ -424,7 +428,7 @@ class SfCompressor::Impl {
             //                 << 1 * MaxPossPool << "\n";
             ShowBitstream();
             FreeCodes -= (Pool[PNr].Last[t] - LastDefinedCode) /
-                         Pow2Dbl129[Pool[PNr].CodeLen[t]];
+                Pow2Dbl129[Pool[PNr].CodeLen[t]];
             // cout<<"FreeCodes: "<<100*FreeCodes<<"%\n";
             LastDefinedPool = Pool[PNr].LastPoolNr[t];
             LastDefinedCode = Pool[PNr - 2].Last[LastDefinedPool];
@@ -438,7 +442,7 @@ class SfCompressor::Impl {
       //      cout << "Timeline\n\n";
       FragCodes = Pow2Int32[(SgnUsed == 3) ? FragLen + 1 : FragLen];
       for (uint32_t i = 0; i < TimelineLen; i++) {
-        if (ZerosAppear == true) {
+        if (ZerosAppear) {
           Bitstream(SevenOfNine(
               ZeroCount[i] + Pool[3].CodeOffset[findPoolNr(3, ZeroCount[i])],
               Pow2Int32[Pool[3].CodeLen[findPoolNr(3, ZeroCount[i])]]));
@@ -521,7 +525,7 @@ class SfCompressor::Impl {
       //      cout << "ExpJump1stCodeLen: " << 1 * ExpJump1stCodeLen << "\n";
       // Keine Nullen, wenn Matrix voll besetzt
       ZerosAppear = (M_NonZeroSize < M_Row * M_Col + 1);
-      if (ZerosAppear == true) {
+      if (ZerosAppear) {
         Zeros1stCodeLen = NineOfSeven(32);
         //        cout << "Zeros1stCodeLen: " << 1 * Zeros1stCodeLen << "\n";
       }
@@ -557,9 +561,9 @@ class SfCompressor::Impl {
             Pool[PNr].Last[t] = Pool[PNr - 2].Last[Pool[PNr].LastPoolNr[t]];
             Pool[PNr].CodeOffset[t] =
                 (1 - FreeCodes) * Pow2Int32[LastDefinedCodeLen] -
-                LastDefinedCode - 1;
+                    LastDefinedCode - 1;
             FreeCodes -= (Pool[PNr].Last[t] - LastDefinedCode) /
-                         Pow2Dbl129[Pool[PNr].CodeLen[t]];
+                Pow2Dbl129[Pool[PNr].CodeLen[t]];
             LastDefinedCode = Pool[PNr - 2].Last[Pool[PNr].LastPoolNr[t]];
             LastDefinedPool = LastDefinedPool + Gelesen;
             Pool[PNr].PoolsCount++;
@@ -570,11 +574,11 @@ class SfCompressor::Impl {
       }
 
       *origin = {.frag_length = FragLen,
-                 .row_based = static_cast<bool>(M_RowBased),
-                 .rows = M_Row,
-                 .columns = M_Col,
-                 .indexes{},
-                 .values{}};
+          .row_based = static_cast<bool>(M_RowBased),
+          .rows = M_Row,
+          .columns = M_Col,
+          .indexes{},
+          .values{}};
       //      cout
       //          <<
       //          "--------------------------------------------------------------\n";
@@ -584,7 +588,7 @@ class SfCompressor::Impl {
       double MySign = ((SgnUsed == 1) ? 1.0 : -1.0), MyFragValue;
       FragCodes = Pow2Int32[(SgnUsed == 3) ? FragLen + 1 : FragLen];
       for (uint32_t i = 0; i < M_NonZeroSize; i++) {
-        if (ZerosAppear == true) {
+        if (ZerosAppear) {
           ZeroCount[i] = FromBitstream(Pool[3].CodeLen[0]);
           if (ZeroCount[i] > Pool[3].Last[0]) {
             for (uint8_t t = 1; t < Pool[3].PoolsCount; t++) {
@@ -685,7 +689,7 @@ class SfCompressor::Impl {
   }
 
   uint8_t findPoolNr(uint8_t PNr, uint32_t TestNr) {
-    uint8_t PoolNrTmp = 0, TestPoolNrTmp;  // Zwischenwerte f�r Poolzuordnung
+    uint8_t PoolNrTmp = 0, TestPoolNrTmp;  // Zwischenwerte f_r Poolzuordnung
     for (int u = Pool[PNr].BisecSteps - 1; u >= 0; u--) {
       TestPoolNrTmp = Pool[PNr].BisecStep[u] + PoolNrTmp;
       if (TestNr > Pool[PNr].Last[TestPoolNrTmp - 1]) {
@@ -695,7 +699,7 @@ class SfCompressor::Impl {
     return PoolNrTmp;
   }
 
-  // Setzt Suchschritte f�r reverse Bisektion ohne �berlauf
+  // Setzt Suchschritte f_r reverse Bisektion _hne berlauf
   void ShowPoolSearch(uint8_t PNr, bool ShowUnused) {
     //    cout << "Bisection(" << 1 * PNr << "): ";
     //    for (int t = Pool[PNr].BisecSteps - 1; t >= 0; t--) {
@@ -758,11 +762,11 @@ class SfCompressor::Impl {
     uint8_t BitsMax = findPoolNr(4, NrPoss);
     uint32_t MaxMampfen = Pow2Int32[BitsMax] - NrPoss + 1;
     uint32_t Pow2ForZero;
-    // Berechne max. n�tige Bits
+    // Berechne max. n_tige Bits
     if (MaxMampfen == 1) {
       NrSel = FromBitstream(BitsMax);
     } else {
-      // Wie viele (2-er Pot) Codes f�r die Null??
+      // Wie viele (2-er Pot) Codes f_r die Null??
       Pow2ForZero = findPoolNr(5, MaxMampfen);
       NrSel = FromBitstream(BitsMax - Pow2ForZero);
       if (NrSel > 0) {
@@ -881,7 +885,7 @@ class SfCompressor::Impl {
       return New_bf16;
     }
     // 64-Bit Adress of float => 32 Bit unsigned int
-    uint64_t *adresse = (uint64_t *)(&TestFloat);
+    uint64_t *adresse = reinterpret_cast<uint64_t *>(&TestFloat);
     uint32_t Zwischen = *adresse;
     // Takes the 8 Bit of the Exponent
     New_bf16.Exp = ((Zwischen << 1) >> 24);
@@ -905,7 +909,7 @@ class SfCompressor::Impl {
     New_bf16.Sgn = (Zwischen >> 31);
     New_bf16.SgnFrag = New_bf16.SgnFrag + (New_bf16.Sgn << FragLen);
     return New_bf16;
-  };
+  }
 
   uint32_t FromBitstream(uint8_t BitCount) {
     uint32_t ResultBits = 0;
@@ -927,7 +931,7 @@ class SfCompressor::Impl {
       } else {
         // Codeschnipsel trennen & einbringen
         ResultBits = (ResultBits << OutBitsFreeRead) +
-                     (OutData[OutByteNr] >> (8 - OutBitsFreeRead));
+            (OutData[OutByteNr] >> (8 - OutBitsFreeRead));
         RestBits -= OutBitsFreeRead;
         OutBitsFreeRead = 0;
       }
@@ -971,8 +975,8 @@ bool SfCompressor::OriginalData::operator==(
     const SfCompressor::OriginalData &rhs) const {
   bool without_values =
       std::tie(frag_length, row_based, rows, columns, indexes) ==
-      std::tie(rhs.frag_length, rhs.row_based, rhs.rows, rhs.columns,
-               rhs.indexes);
+          std::tie(rhs.frag_length, rhs.row_based, rhs.rows, rhs.columns,
+                   rhs.indexes);
   if (without_values && values.size() == rhs.values.size()) {
     const auto error = 1.0 / (std::pow(2, frag_length + 1) - 2);
     for (int i = 0; i < values.size(); ++i) {

@@ -1,6 +1,4 @@
-//
-// Created by atimin on 06.05.21.
-//
+// Copyright 2021 PANDA Gmbh
 
 #include <cassert>
 #include <fstream>

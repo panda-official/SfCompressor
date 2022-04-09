@@ -9,7 +9,7 @@ option(SFC_BUILD_BENCHMARKS "Enable benchmarks" OFF)
 set(SFC_TARGET_NAME ${PROJECT_NAME})
 
 # Create sfc target
-add_library(${SFC_TARGET_NAME} sources/sf_compressor.cpp)
+add_library(${SFC_TARGET_NAME} sources/sf_compressor.cc)
 
 target_compile_features(${SFC_TARGET_NAME} PUBLIC cxx_std_17)
 

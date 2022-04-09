@@ -1,6 +1,6 @@
 // Copyright 2021 PANDA GmbH
-#ifndef SRC_SF_SF_COMPRESSOR_H_
-#define SRC_SF_SF_COMPRESSOR_H_
+#ifndef SF_COMPRESSOR_SF_COMPRESSOR_H_
+#define SF_COMPRESSOR_SF_COMPRESSOR_H_
 
 #include <memory>
 #include <vector>
@@ -23,8 +23,8 @@ class SfCompressor {
     std::vector<uint32_t> indexes;
     std::vector<float> values;
 
-    bool operator==(const OriginalData& rhs) const;
-    bool operator!=(const OriginalData& rhs) const;
+    bool operator==(const OriginalData &rhs) const;
+    bool operator!=(const OriginalData &rhs) const;
   };
 
   /**
@@ -41,10 +41,10 @@ class SfCompressor {
 
   ~SfCompressor();
 
-  [[nodiscard]] bool Compress(const OriginalData& origin,
-                              std::vector<uint8_t>* blob) const;
+  [[nodiscard]] bool Compress(const OriginalData &origin,
+                              std::vector<uint8_t> *blob) const;
 
-  bool Decompress(const std::vector<uint8_t>& blob, OriginalData* origin) const;
+  bool Decompress(const std::vector<uint8_t> &blob, OriginalData *origin) const;
 
  private:
   class Impl;
@@ -53,4 +53,4 @@ class SfCompressor {
 
 }  // namespace drift::sf
 
-#endif  // SRC_SF_SF_COMPRESSOR_H_
+#endif  // SF_COMPRESSOR_SF_COMPRESSOR_H_
