@@ -953,7 +953,6 @@ class SfCompressor::Impl {
   std::vector<uint8_t> ExpJump{};
 };
 
-
 SfCompressor::SfCompressor(size_t buffer_size)
     : impl_(std::make_unique<Impl>(buffer_size)) {}
 SfCompressor::~SfCompressor() = default;

@@ -1,7 +1,6 @@
 // Copyright 2021 PANDA GmbH
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
-
 #include <sf_compressor/sf_compressor.h>
 #include <sf_compressor/utils.h>
 
@@ -55,11 +54,11 @@ TEST_CASE("Tests sf::SfCompressor") {
 
     CAPTURE(data.values.size());
     REQUIRE(compressor.Compress(data, &blob));
-    //    REQUIRE(blob.size() == 1374);
+    // REQUIRE(blob.size() == 1374);
 
     SfCompressor::OriginalData restored_data;
     REQUIRE(compressor.Decompress(blob, &restored_data));
-    //REQUIRE(restored_data == data);
+    // REQUIRE(restored_data == data);
   }
 
   SECTION("check all fragments and different sizes") {
@@ -79,7 +78,7 @@ TEST_CASE("Tests sf::SfCompressor") {
 
     REQUIRE(compressor.Compress(data, &blob));
     REQUIRE(compressor.Decompress(blob, &restored_data));
-    //REQUIRE(restored_data == data);
+    // REQUIRE(restored_data == data);
   }
 
   SECTION("should check") {

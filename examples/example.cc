@@ -7,8 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "sf_compressor/sf_compressor.h"
-#include "sf_compressor/utils.h"
+#include <sf_compressor/sf_compressor.h>
+#include <sf_compressor/utils.h>
 
 using drift::sf::CreateRandomMatrix;
 using drift::sf::SfCompressor;
@@ -103,10 +103,10 @@ int main() {
       return -1;
     }
 
-//    print_vec("IN INDEX", in_data.indexes);
-//    print_vec("OUT INDEX", out_data.indexes);
-//    print_vec("IN VALUES", in_data.values);
-//    print_vec("OUT VALUES", out_data.values);
+    // print_vec("IN INDEX", in_data.indexes);
+    // print_vec("OUT INDEX", out_data.indexes);
+    // print_vec("IN VALUES", in_data.values);
+    // print_vec("OUT VALUES", out_data.values);
 
     assert(out_data == in_data);
   }
