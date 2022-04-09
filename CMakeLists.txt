@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(sf_compressor VERSION 1.0.0)
+project(sf_compressor VERSION 1.0.1)
 
 option(SFC_BUILD_TESTS "Enable unit tests" OFF)
 option(SFC_BUILD_EXAMPLES "Enable examples" OFF)

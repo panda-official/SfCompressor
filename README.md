@@ -1,4 +1,4 @@
-# Sf
+# SF Compressor
 
 Sparse Float compressor written by Christian Vorwerk.
 
