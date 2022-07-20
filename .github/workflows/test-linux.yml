@@ -15,36 +15,43 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/test-cpp-linux.yml'
+      - '.github/workflows/test-linux.yml'
       - 'benchmarks/**'
       - 'examples/**'
       - 'sf_compressor/**'
       - 'sources/**'
       - 'tests/**'
       - 'CMakeLists.txt'
+
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         build_type: [ Debug, Release ]
+        os: [ ubuntu-latest, windows-latest ]
+
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+
       - name: Build tests, benchmarks and examples
         run: |
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DSFC_BUILD_TESTS=ON -DSFC_BUILD_BENCHMARKS=ON -DSFC_BUILD_EXAMPLES=ON ..
           cmake --build .
+
       - name: Run tests
         run: |
           cd build
           ctest --output-on-failure
+
       - name: Install sf_compressor
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd build
           sudo cmake --install .
+
       - name: Check cmake target installation
+        if: matrix.os == 'ubuntu-latest'
         run: cmake --find-package -DNAME=sf_compressor -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST
