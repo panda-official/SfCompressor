@@ -24,9 +24,10 @@ include(FetchContent)
 if (SFC_BUILD_TESTS OR SFC_BUILD_BENCHMARKS)
     FetchContent_Declare(
             Catch2
-            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-            GIT_TAG v3.0.0-preview3)
-
+            URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.0.1.tar.gz
+            URL_HASH
+            SHA256=8c4173c68ae7da1b5b505194a0c2d6f1b2aef4ec1e3e7463bde451f26bbaf4e7
+    )
     FetchContent_MakeAvailable(Catch2)
 
     list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
