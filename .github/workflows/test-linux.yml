@@ -49,7 +49,7 @@ jobs:
       - name: Install sf_compressor
         run: |
           cd build
-          sudo cmake --install .
+          cmake --install .
 
       - name: Check cmake target installation
         run: cmake --find-package -DNAME=sf_compressor -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST
