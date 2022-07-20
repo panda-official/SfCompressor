@@ -47,9 +47,11 @@ jobs:
           ctest --output-on-failure
 
       - name: Install sf_compressor
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd build
-          cmake --install .
+          sudo cmake --install .
 
       - name: Check cmake target installation
+        if: matrix.os == 'ubuntu-latest'
         run: cmake --find-package -DNAME=sf_compressor -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST
