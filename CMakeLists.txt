@@ -11,7 +11,8 @@ set(SFC_TARGET_NAME ${PROJECT_NAME})
 # Create sfc target
 add_library(${SFC_TARGET_NAME} sources/sf_compressor.cc)
 
-target_compile_features(${SFC_TARGET_NAME} PUBLIC cxx_std_17)
+target_compile_features(${SFC_TARGET_NAME} PUBLIC cxx_std_20)
+set_target_properties(${SFC_TARGET_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
 
 # Include paths
 target_include_directories(${SFC_TARGET_NAME} PUBLIC
